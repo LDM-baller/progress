@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Progress</title>
+<!-- Built by app/make_dashboard.py from app/dashboard_template.html. Do not edit the built copy. -->
+<style>
+:root{
+  --bg:#faf7f2; --panel:#ffffff; --ink:#23201c; --muted:#6d655c; --line:#e6ddd0; --accent:#8a4b1f; --accent-soft:#f3ebe0;
+  --right:#1d6b1d; --right-bg:#e3f3e3; --nowork:#1d6b7a; --nowork-bg:#dff0f3; --fixed:#56700f; --fixed-bg:#eef5d8; --notyet:#9b2a1a; --notyet-bg:#fbe4e0;
+  --todo:#7a5a00; --todo-bg:#fff4d6; --note:#44505e; --note-bg:#eef1f5; --shadow:0 1px 2px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1916; --panel:#24211d; --ink:#ece6dd; --muted:#a79d90; --line:#3a352e; --accent:#e0a36f; --accent-soft:#33291f;
+    --right:#8fd68f; --right-bg:#1e3320; --nowork:#8fd0de; --nowork-bg:#1b3137; --fixed:#c4dc84; --fixed-bg:#2b3319; --notyet:#f0a08f; --notyet-bg:#3d221c;
+    --todo:#f1cf73; --todo-bg:#3a3118; --note:#b8c3d1; --note-bg:#262c34; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1b1916; --panel:#24211d; --ink:#ece6dd; --muted:#a79d90; --line:#3a352e; --accent:#e0a36f; --accent-soft:#33291f;
+  --right:#8fd68f; --right-bg:#1e3320; --nowork:#8fd0de; --nowork-bg:#1b3137; --fixed:#c4dc84; --fixed-bg:#2b3319; --notyet:#f0a08f; --notyet-bg:#3d221c;
+  --todo:#f1cf73; --todo-bg:#3a3118; --note:#b8c3d1; --note-bg:#262c34; --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px 48px}
+header.top{padding:22px 0 8px}
+h1{font-size:26px;margin:0 0 2px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13.5px}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -16px;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{white-space:nowrap;text-decoration:none;color:var(--ink);padding:6px 11px;border-radius:999px;font-size:14px;border:1px solid var(--line);background:var(--panel)}
+nav.tabs a:hover{border-color:var(--accent)}
+section{margin-top:28px}
+h2{font-size:19px;margin:0 0 4px}
+h2 .q{color:var(--muted);font-weight:400;font-size:14px;margin-left:6px}
+h3{font-size:15px;margin:18px 0 6px}
+.lead{color:var(--muted);margin:0 0 12px;font-size:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.stat .v{font-size:26px;font-weight:650;line-height:1.15}
+.stat .l{color:var(--muted);font-size:13px}
+.stat .s{font-size:12.5px;color:var(--muted);margin-top:4px}
+.bar3{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin-top:8px}
+.bar3 i{display:block}
+.i-right{background:var(--right)} .i-nowork{background:var(--nowork)} .i-fixed{background:var(--fixed)} .i-notyet{background:var(--notyet)} .i-other{background:var(--muted)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0;background:var(--c)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tablebox{overflow-x:auto}
+tr.sechead td{background:var(--accent-soft);font-weight:650;font-size:13px;color:var(--accent)}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.p-right{background:var(--right-bg);color:var(--right)} .p-nowork{background:var(--nowork-bg);color:var(--nowork)} .p-fixed{background:var(--fixed-bg);color:var(--fixed)}
+.p-notyet{background:var(--notyet-bg);color:var(--notyet)} .p-skip,.p-none{background:var(--note-bg);color:var(--note)}
+.take{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;margin:8px 0;border:1px solid var(--line);background:var(--panel)}
+.take .tag{flex:none;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:6px;margin-top:2px}
+.t-watch .tag{background:var(--notyet-bg);color:var(--notyet)} .t-good .tag{background:var(--right-bg);color:var(--right)}
+.t-todo .tag{background:var(--todo-bg);color:var(--todo)} .t-note .tag{background:var(--note-bg);color:var(--note)}
+.take .ev{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.review{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--panel);padding:12px 14px;margin:14px 0}
+.review h3{margin:0 0 4px} .review .by{color:var(--muted);font-size:12.5px} .review h4{font-size:13.5px;margin:10px 0 4px}
+.review ul{margin:0;padding-left:18px} .review li{margin:3px 0} .review .bk{display:block;color:var(--muted);font-size:12px}
+.book{font-size:13px;color:var(--accent);margin-top:6px}
+.adv{display:inline-block;border-radius:999px;padding:0 8px;font-size:11.5px;font-weight:700;background:var(--todo-bg);color:var(--todo);margin-left:6px;white-space:nowrap}
+.adv.soft{font-weight:600;background:var(--note-bg);color:var(--note)}
+.follow{display:block;font-size:12.5px;margin-top:2px} .followbox{background:var(--accent-soft);border-radius:8px;padding:6px 10px;margin-top:8px;font-size:13.5px}
+.linkrow a{font-size:13px;margin-right:6px}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:11px}
+.chart .gl{stroke:var(--line)}
+.explain{background:var(--accent-soft);border-radius:12px;padding:12px 14px;font-size:14px}
+.explain dt{font-weight:650;margin-top:6px} .explain dd{margin:0 0 0 0;color:var(--ink)}
+details.how summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+select,input[type=search],input[type=password]{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);max-width:100%}
+.prob{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:8px 0;box-shadow:var(--shadow)}
+.prob>summary{list-style:none;cursor:pointer;padding:10px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.prob>summary::-webkit-details-marker{display:none}
+.prob>summary .num{color:var(--accent);font-weight:700;min-width:32px}
+.prob>summary .what{flex:1 1 260px;min-width:0}
+.prob>summary .meta{color:var(--muted);font-size:12.5px}
+.prob .body{padding:0 12px 12px;border-top:1px dashed var(--line)}
+.qtext{white-space:pre-wrap;margin:10px 0 4px}
+.key{color:var(--muted);font-size:13.5px}
+.pagebox{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+.pagebox .pl{font-weight:650}
+.inkimg{display:block;max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:6px 0;cursor:zoom-in}
+.reading{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;white-space:pre-wrap;background:var(--bg);border-radius:6px;padding:6px 8px}
+.warn{color:var(--notyet)}
+.flash{outline:3px solid var(--accent);outline-offset:2px}
+.skbadge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:12.5px;margin:1px 2px 1px 0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.empty{color:var(--muted);font-style:italic}
+#lock{max-width:380px;margin:18vh auto 0;padding:0 16px}
+#lock form{display:flex;gap:8px;flex-wrap:wrap}
+#lock input[type=password]{flex:1 1 200px}
+.btn{font:inherit;font-size:14px;padding:7px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.lightbox img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+footer{margin-top:40px;color:var(--muted);font-size:12.5px}
+@media print{nav.tabs{display:none} .prob{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div id="lock" hidden>
+  <h1>Progress</h1>
+  <p class="sub">This page is locked. Type the password you were given.</p>
+  <form id="lockform" autocomplete="on">
+    <input type="text" name="username" value="progress" autocomplete="username" hidden>
+    <input id="pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Password" required>
+    <button class="btn" type="submit">Open</button>
+    <label class="small muted" style="flex-basis:100%"><input type="checkbox" id="remember"> Remember on this device</label>
+  </form>
+  <p id="lockmsg" class="warn small" role="alert"></p>
+</div>
+<div id="app" hidden></div>
+
+<script>
+let CONFIG = {"locked": true, "salt": "97d32852ce530716089638c5e8b51c71", "iter": 310000};
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const plural = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + "s")}`;
+const fmtDate = d => { if (!d) return ""; const x = new Date(d + "T12:00:00"); return x.toLocaleDateString(undefined, {weekday:"short", day:"numeric", month:"short"}); };
+const VCLS = {right:"Right first time", nowork:"Right; working added when asked", fixed:"Right after a fix", notyet:"Not yet right", skip:"Skipped", none:"Not checked"};
+let KEYS = null, D = null;
+
+/* ── the lock: PBKDF2 -> AES-CBC + HMAC, as app/make_dashboard.py seals it ── */
+const hex2buf = h => new Uint8Array(h.match(/../g).map(b => parseInt(b, 16)));
+async function deriveKeys(pw){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
+  const bits = new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:hex2buf(CONFIG.salt), iterations:CONFIG.iter}, base, 512));
+  return {raw: bits, enc: await crypto.subtle.importKey("raw", bits.slice(0,32), "AES-CBC", false, ["decrypt"]),
+          mac: await crypto.subtle.importKey("raw", bits.slice(32), {name:"HMAC", hash:"SHA-256"}, false, ["verify"])};
+}
+async function openSealed(buf){
+  const b = new Uint8Array(buf), iv = b.slice(0,16), ct = b.slice(16, b.length - 32), tag = b.slice(b.length - 32);
+  const signed = b.slice(0, b.length - 32);
+  if (!await crypto.subtle.verify("HMAC", KEYS.mac, tag, signed)) throw new Error("bad");
+  return crypto.subtle.decrypt({name:"AES-CBC", iv}, KEYS.enc, ct);
+}
+async function fetchSealed(path){
+  const r = await fetch(path, {cache:"no-store"});
+  if (!r.ok) throw new Error("missing " + path);
+  return openSealed(await r.arrayBuffer());
+}
+async function unlock(pw, remember){
+  KEYS = await deriveKeys(pw);
+  const plain = await fetchSealed("data.bin");
+  D = JSON.parse(new TextDecoder().decode(plain));
+  try { if (remember) localStorage.setItem("dash-key", Array.from(KEYS.raw).map(x => x.toString(16).padStart(2,"0")).join("") + ":" + CONFIG.salt); } catch(e) {}
+}
+async function unlockSaved(){
+  let saved = null; try { saved = localStorage.getItem("dash-key"); } catch(e) {}
+  if (!saved) return false;
+  const [k, salt] = saved.split(":");
+  if (salt !== CONFIG.salt) { try { localStorage.removeItem("dash-key"); } catch(e) {} return false; }
+  const bits = hex2buf(k);
+  KEYS = {raw: bits, enc: await crypto.subtle.importKey("raw", bits.slice(0,32), "AES-CBC", false, ["decrypt"]),
+          mac: await crypto.subtle.importKey("raw", bits.slice(32), {name:"HMAC", hash:"SHA-256"}, false, ["verify"])};
+  try { D = JSON.parse(new TextDecoder().decode(await fetchSealed("data.bin"))); return true; }
+  catch(e){ try { localStorage.removeItem("dash-key"); } catch(_) {} KEYS = null; return false; }
+}
+const imgCache = {};
+async function inkSrc(path){
+  if (!CONFIG.locked) return path;
+  if (imgCache[path]) return imgCache[path];
+  const buf = await fetchSealed((D.ink_names || {})[path] || path.replace(/\.png$/, ".bin"));
+  return imgCache[path] = URL.createObjectURL(new Blob([buf], {type:"image/png"}));
+}
+
+/* ── small charts, drawn as SVG ── */
+function barChart(rows, {value, label, stack, height = 160, unit = ""}){
+  if (!rows.length) return `<p class="empty">Nothing yet.</p>`;
+  const W = Math.max(320, rows.length * 56), H = height, pad = {l:34, r:8, t:10, b:34};
+  const vals = rows.map(r => stack ? stack.reduce((s, k) => s + (r[k.key] || 0), 0) : (value(r) || 0));
+  const max = Math.max(1, ...vals), step = max <= 5 ? 1 : Math.ceil(max / 4);
+  const top = Math.ceil(max / step) * step, ih = H - pad.t - pad.b, bw = Math.min(36, (W - pad.l - pad.r) / rows.length * .62);
+  let g = "";
+  for (let v = 0; v <= top; v += step){ const y = pad.t + ih - ih * v / top; g += `<line class="gl" x1="${pad.l}" x2="${W - pad.r}" y1="${y}" y2="${y}"/><text x="${pad.l - 6}" y="${y + 4}" text-anchor="end">${v}</text>`; }
+  rows.forEach((r, i) => {
+    const cx = pad.l + (i + .5) * (W - pad.l - pad.r) / rows.length;
+    let y = pad.t + ih;
+    const parts = stack || [{key:null, cls:"i-accent"}];
+    parts.forEach(p => {
+      const v = p.key ? (r[p.key] || 0) : (value(r) || 0), h = ih * v / top;
+      if (h > 0){ y -= h; g += `<rect x="${cx - bw/2}" y="${y}" width="${bw}" height="${h}" rx="3" fill="var(${p.color || "--accent"})"><title>${esc(label(r))}: ${v}${unit}${p.name ? " " + p.name : ""}</title></rect>`; }
+    });
+    g += `<text x="${cx}" y="${H - pad.b + 16}" text-anchor="middle">${esc(label(r))}</text>`;
+  });
+  return `<div class="tablebox"><svg class="chart" viewBox="0 0 ${W} ${H}" style="min-width:${Math.min(W, 640)}px" role="img">${g}</svg></div>`;
+}
+const bar3 = (x, o = 0) => { const r = x.right || 0, w = x.nowork || 0, f = x.fixed || 0, n = x.notyet || 0, t = Math.max(1, r + w + f + n + o); return `<div class="bar3" title="${r} right first time, ${w} right with working added when asked, ${f} after a fix, ${n} not yet${o ? ", " + o + " other" : ""}"><i class="i-right" style="width:${100*r/t}%"></i><i class="i-nowork" style="width:${100*w/t}%"></i><i class="i-fixed" style="width:${100*f/t}%"></i><i class="i-notyet" style="width:${100*n/t}%"></i><i class="i-other" style="width:${100*o/t}%"></i></div>`; };
+const LEGEND = `<div class="legend"><span style="--c:var(--right)">right first time</span><span style="--c:var(--nowork)">right, working added when asked</span><span style="--c:var(--fixed)">right after a fix</span><span style="--c:var(--notyet)">not yet right</span></div>`;
+const probLinks = ids => ids && ids.length ? `<span class="linkrow">${ids.map(id => { const p = D.problems.find(x => x.id === id); return p ? `<a href="#p-${esc(id)}" data-go="${esc(id)}">#${p.n}</a>` : ""; }).join("")}</span>` : "";
+
+/* Lindsay 2026-09-25: mark a topic his class (Math 7) does not cover. Adults only: his screens never say it. */
+function advTag(p){
+  const c = p.coverage || {};
+  if (c.level === "advanced") return `<span class="adv" title="${esc(c.why || "")}">7A only · Advanced</span>`;
+  if (c.level === "beyond_outline") return `<span class="adv soft" title="${esc(c.why || "")}">beyond the Math 7 outline so far</span>`;
+  return "";
+}
+/* a missed problem's follow-up: later problems of the same shape, or that the app owes him one */
+const MARK = {right: "✓ right", nowork: "✓ right (working added)", fixed: "✗ then fixed", notyet: "✗ not yet"};
+function followLine(p){
+  const L = p.lookalikes || [];
+  if (L.length) return "Look-alikes since: " + L.map(q => `<a href="#p-${esc(q.id)}" data-go="${esc(q.id)}">#${q.n}</a> ${esc(MARK[q.cls] || q.cls)}`).join(", ") + (p.lookalike_due ? " · another is due at his next sitting" : "");
+  return p.lookalike_due ? "No look-alike yet: the app gives him one at his next sitting." : "";
+}
+/* Lindsay's latest review of his work, in plain words (work/app-reviews.json) */
+function reviewBlock(){
+  const r = D.review; if (!r) return "";
+  const item = x => `<li>${x.id ? `<a href="#p-${esc(x.id)}" data-go="${esc(x.id)}">#${x.n}</a>` : "#" + esc(x.n)}${x.skill ? ` <b>${esc(x.skill)}</b>:` : ""} ${esc(x.what)}${followLine(x) ? `<span class="follow">${followLine(x)}</span>` : ""}${x.book ? `<span class="bk">${esc(x.book.replace(" (this question is modelled on it)", ""))}</span>` : ""}</li>`;
+  const list = (t, xs) => xs && xs.length ? `<h4>${t}</h4><ul>${xs.map(item).join("")}</ul>` : "";
+  return `<div class="review"><h3>Reviewed by ${esc(r.by)}, ${esc(fmtDate(r.date))}</h3><div class="by">${esc(r.covers || "")}${r.written_by ? " · summary written by " + esc(r.written_by) : ""}</div>
+    <p><b>${esc(r.headline)}</b></p>${list("His mistakes", r.his_mistakes)}${list("Not a mistake", r.not_mistakes)}${list("The checker's mistakes (corrected)", r.checker_mistakes)}
+    ${r.watch && r.watch.length ? `<h4>Worth watching</h4><ul>${r.watch.map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+    ${r.follow_up ? `<p class="small">${esc(r.follow_up)}</p>` : ""}${r.caution ? `<p class="small muted">${esc(r.caution)}</p>` : ""}</div>`;
+}
+
+/* ── the page ── */
+function render(){
+  const g = D.glance, A = g.all, W = g.week;
+  document.title = D.title;
+  const tk = D.takeaways.map(t => `<div class="take t-${t.kind}"><span class="tag">${{watch:"Watch",good:"Going well",todo:"To do",note:"Note"}[t.kind]}</span><div>${esc(t.text)} ${probLinks(t.ids)}<span class="ev">${esc(t.ev)}</span></div></div>`).join("");
+  const days = D.days;
+  const sitRows = D.sittings.map(s => `<tr><td>${esc(fmtDate(s.date))}<div class="muted small">${esc(s.start)}–${esc(s.end || "?")}</div></td><td>${esc(s.kind)}${s.lessons.length ? `<div class="small muted">${s.lessons.map(l => "Lesson: " + esc(l.title)).join("<br>")}</div>` : ""}</td><td class="n">${s.minutes == null ? "—" : Math.round(s.minutes)}</td><td class="n">${s.problems}${s.planned ? ` <span class="muted">/ ${s.planned}</span>` : ""}${s.lesson_questions ? `<div class="muted small">+ ${plural(s.lesson_questions, "lesson question")}</div>` : ""}</td><td class="n">${s.points}</td><td>${s.finished ? "Finished" : "Left early"}</td><td style="min-width:110px">${s.problems + s.lesson_questions ? bar3(s, s.problems + s.lesson_questions - s.right - s.nowork - s.fixed - s.notyet) : ""}</td></tr>`).join("");
+  const lessonRows = D.lessons.map(l => `<tr><td>${esc(fmtDate(l.date))} <span class="muted small">${esc(l.time)}</span></td><td>${esc(l.title)}<div class="muted small">${esc(l.format || "")}</div></td><td class="n">${l.minutes == null ? "—" : l.minutes}</td><td>${l.check ? `<a href="#p-${esc(l.check.id)}" data-go="${esc(l.check.id)}"><span class="pill p-${l.check.cls}">${esc(l.check.verdict)}</span></a>` : `<span class="muted">—</span>`}</td></tr>`).join("");
+  const offered = D.primers_offered.map(p => `<li>${esc(p.title)} <span class="muted small">(${esc(p.section)})</span> — ${p.opened ? "opened" : "<b>not opened yet</b>"}</li>`).join("");
+  const revRows = D.reviews_due.map(r => `<tr><td>${esc(r.skill)}</td><td>${r.due ? esc(fmtDate(r.due)) : "his next sitting"}${r.overdue_days ? ` <span class="pill p-notyet">${r.overdue_days} days late</span>` : ""}</td><td>${esc(r.slot)}</td><td class="muted small">${esc(r.why)}</td></tr>`).join("");
+  let lastSec = null;
+  const skillRows = D.skills.filter(s => s.tried).map(s => (s.section !== lastSec ? `<tr class="sechead"><td colspan="9">${esc(lastSec = s.section)}</td></tr>` : "") + `<tr><td><b>${esc(s.label)}</b></td><td class="n">${s.tried}</td><td class="n">${s.right}</td><td class="n">${s.nowork}</td><td class="n">${s.fixed}</td><td class="n">${s.notyet}</td><td style="min-width:120px">${bar3(s, s.other)}</td><td class="small">${s.records.on_his_own} on his own · ${s.records.new_looking} new-looking · ${s.records.week_later} a week later</td><td><a href="#problems" data-skill="${esc(s.label)}">see all</a></td></tr>`).join("");
+  const tripped = D.skills.filter(s => s.tripped_inside_others);
+  const mistakeRows = D.mistakes.map(m => `<tr><td>${esc(m.name)}</td><td class="n">${m.count}</td><td class="small">${m.skills.map(esc).join(", ")}</td><td>${probLinks(m.ids)}</td></tr>`).join("");
+  const levelRows = Object.entries(D.levels).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${v.tried}</td><td class="n">${v.right}</td><td class="n">${v.nowork}</td><td class="n">${v.fixed}</td><td class="n">${v.notyet}</td><td style="min-width:120px">${bar3(v)}</td></tr>`).join("");
+  const pr = D.points_rules || {};
+  const skillsList = [...new Set(D.problems.flatMap(p => p.skills.slice(0,1)))].sort();
+  const dayList = [...new Set(D.problems.map(p => p.date))].sort().reverse();
+
+  $("#app").innerHTML = `<div class="wrap">
+  <header class="top"><h1>${esc(D.title)}</h1>
+    <div class="sub">Updated ${esc(D.built_at)} from the practice app. ${g.last ? `Last practice: ${esc(fmtDate(g.last.date))} at ${esc(g.last.time)}.` : "No practice saved yet."}</div></header>
+  <nav class="tabs"><a href="#overview">Overview</a><a href="#time">Time &amp; points</a><a href="#lessons">Lessons &amp; review</a><a href="#skills">Right &amp; wrong</a><a href="#problems">His pages</a><a href="#how">How to read this</a></nav>
+
+  <section id="overview"><h2>Overview</h2>
+    <div class="grid">
+      <div class="card stat"><div class="l">This week so far</div><div class="v">${W.minutes} min</div><div class="s">${plural(W.sittings, "sitting")}${W.planned ? ` of ${W.planned} planned` : ""} · ${plural(W.problems, "problem")}</div></div>
+      <div class="card stat"><div class="l">All time</div><div class="v">${A.minutes} min</div><div class="s">${plural(A.sittings, "sitting")} over ${plural(A.days, "day")} · ${plural(A.problems, "problem")}</div></div>
+      <div class="card stat"><div class="l">Firewood (points)</div><div class="v">${A.points}</div><div class="s">${W.points} this week · for taking part, not for being right</div></div>
+      <div class="card stat"><div class="l">How his answers went</div><div class="v">${A.right} <span class="small muted">of ${A.problems} right first time</span></div>${bar3(A, A.other)}<div class="s">${A.nowork ? A.nowork + " right but working added when asked · " : ""}${A.fixed} after a fix · ${A.notyet} not yet</div></div>
+    </div>
+    ${reviewBlock()}
+    <h3>What to take from it</h3>
+    <p class="lead">Each line is worked out from his saved pages by a fixed rule, says whether it was seen directly (OBSERVED) or worked out (INFERRED), and links to the problems behind it. None of it says he has mastered anything.</p>
+    ${tk || '<p class="empty">Nothing to say yet.</p>'}
+  </section>
+
+  <section id="time"><h2>Time &amp; points <span class="q">How much is he doing?</span></h2>
+    <p class="lead">Minutes run from when a sitting starts to when it ends (a sitting left open counts an hour at most). Typical time on one problem: ${A.median_seconds ? `about ${A.median_seconds} seconds` : "not known yet"}.</p>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div class="card"><b>Minutes by day</b>${barChart(days, {value: d => d.minutes, label: d => fmtDate(d.date).replace(/^\w+ /, ""), unit:" min"})}</div>
+      <div class="card"><b>Problems by day</b>${barChart(days, {label: d => fmtDate(d.date).replace(/^\w+ /, ""), stack:[{key:"right", color:"--right", name:"right first time"},{key:"nowork", color:"--nowork", name:"right, working added"},{key:"fixed", color:"--fixed", name:"after a fix"},{key:"notyet", color:"--notyet", name:"not yet"}]})}${LEGEND}</div>
+    </div>
+    <h3>Every sitting</h3>
+    <div class="card tablebox"><table><tr><th>When</th><th>What</th><th class="n">Min</th><th class="n">Problems</th><th class="n">Points</th><th>Done?</th><th>Answers</th></tr>${sitRows || '<tr><td colspan="7" class="empty">No sittings yet.</td></tr>'}</table></div>
+    <h3>Points and stars</h3>
+    <div class="explain"><dl>
+      <dt>Firewood (points): ${A.points}</dt><dd>Earned for taking part: ${pr.submit || 3} for sending a page, ${pr.fix || 3} for fixing one, ${pr.show_work || 2} for showing work, ${pr.sitting_done || 10} for finishing a sitting. It never goes down and does <b>not</b> measure right answers. It buys pieces for his camp (${plural(g.camp_picks, "piece")} so far)${g.horse ? `; his horse is ${esc(g.horse)}` : ""}.</dd>
+      <dt>Stars: ${D.stars.length}</dt><dd>${D.stars.length ? D.stars.map(s => `${esc(s.skill)} — ${esc(s.record)} (${esc(fmtDate(s.date))})`).join("<br>") : "None yet."}<br><span class="muted small">A star is evidence: a skill done right on his own, on a new-looking problem, or a week later. A star the checker's verdict no longer supports is taken back and not counted here.</span></dd>
+    </dl></div>
+  </section>
+
+  <section id="lessons"><h2>Lessons &amp; review <span class="q">Is he doing them?</span></h2>
+    <h3>Lessons he opened</h3>
+    <div class="card tablebox"><table><tr><th>When</th><th>Lesson</th><th class="n">Min</th><th>Its check question</th></tr>${lessonRows || '<tr><td colspan="4" class="empty">No lessons opened yet.</td></tr>'}</table>
+    <p class="small muted">Minutes on a lesson inside a sitting = from opening it to his first practice problem (worked out from the times).</p></div>
+    ${offered ? `<h3>Lessons for the sections he is working in</h3><ul>${offered}</ul>` : ""}
+    <h3>Review coming up</h3>
+    <p class="lead">The app brings a skill back after he gets it right: next sitting, then about a week later, then on a new-looking problem, then about four weeks later. Getting it right again a week later is the first sign it has stuck.</p>
+    <div class="card tablebox"><table><tr><th>Skill</th><th>Due</th><th>Kind</th><th>Why</th></tr>${revRows || '<tr><td colspan="4" class="empty">Nothing due.</td></tr>'}</table></div>
+    <p class="small">Review problems done so far: <b>${D.review_done.length}</b> ${probLinks(D.review_done)}</p>
+    <h3>Extra help the app is giving</h3>
+    ${D.step_repairs.length || D.checkups.length ? `<ul>${D.step_repairs.map(r => `<li>Drilling the step <b>${esc(r.skill)}</b>: ${r.have} of ${r.need} clean tries so far.</li>`).join("")}${D.checkups.map(c => `<li>${esc(c.text)}</li>`).join("")}</ul>` : '<p class="empty">None running.</p>'}
+    <p class="small muted">Kinds of problems he has done: ${Object.entries(D.kinds).map(([k, v]) => `${esc(k)} ${v}`).join(" · ") || "none"}.</p>
+  </section>
+
+  <section id="skills"><h2>Right &amp; wrong <span class="q">What kinds of questions?</span></h2>
+    <p class="lead">Each problem is filed under the main skill it practises. “Right first time” means his first page was right; “working added” means the answer was right but he showed no working until asked; “after a fix” means the answer itself was wrong and he fixed it.</p>
+    <div class="card tablebox"><table><tr><th>Skill</th><th class="n">Tried</th><th class="n">Right first</th><th class="n">Work added</th><th class="n">After fix</th><th class="n">Not yet</th><th></th><th>Evidence so far</th><th></th></tr>${skillRows || '<tr><td colspan="8" class="empty">Nothing yet.</td></tr>'}</table>${LEGEND}</div>
+    ${tripped.length ? `<h3>Steps that tripped him inside other problems</h3><p class="lead">Where the checker placed the mistake on a step belonging to a different skill. That can point to an earlier skill that needs shoring up.</p><ul>${tripped.map(s => `<li><b>${esc(s.label)}</b>: ${plural(s.tripped_inside_others, "time")} ${probLinks(s.tripped_ids)}</li>`).join("")}</ul>` : ""}
+    <h3>Kinds of mistakes on his first try</h3>
+    <div class="card tablebox"><table><tr><th>What went wrong</th><th class="n">Times</th><th>In</th><th>Problems</th></tr>${mistakeRows || '<tr><td colspan="4" class="empty">No mistakes on a first try yet.</td></tr>'}</table></div>
+    <h3>By level</h3>
+    <div class="card tablebox"><table><tr><th>Level</th><th class="n">Tried</th><th class="n">Right first</th><th class="n">Work added</th><th class="n">After fix</th><th class="n">Not yet</th><th></th></tr>${levelRows || '<tr><td colspan="6" class="empty">Nothing yet.</td></tr>'}</table></div>
+  </section>
+
+  <section id="problems"><h2>His pages <span class="q">Every problem, in his handwriting</span></h2>
+    <p class="lead">Newest first. Open one to see the question, his page as he wrote it, what the checker read, its verdict and exactly what he was told.</p>
+    <div class="filters" role="toolbar">
+      <button class="chip" data-v="all" aria-pressed="true">All</button><button class="chip" data-v="notyet" aria-pressed="false">Not yet right</button><button class="chip" data-v="nowork" aria-pressed="false">Working added</button><button class="chip" data-v="fixed" aria-pressed="false">After a fix</button><button class="chip" data-v="right" aria-pressed="false">Right first time</button>
+      <select id="fskill" aria-label="Skill"><option value="">Every skill</option>${skillsList.map(s => `<option>${esc(s)}</option>`).join("")}</select>
+      <select id="fday" aria-label="Day"><option value="">Every day</option>${dayList.map(d => `<option value="${esc(d)}">${esc(fmtDate(d))}</option>`).join("")}</select>
+      <button class="chip" id="openall" type="button">Open all</button>
+    </div>
+    <div id="plist"></div>
+  </section>
+
+  <section id="how"><h2>How to read this</h2>
+    <div class="explain"><dl>
+      <dt>Who judged the answers</dt><dd>A checker (an AI model) reads a picture of his handwriting and compares it with the answer key. It can misread. Pages it was unsure about are marked, and his handwriting is here so anyone can check it.</dd>
+      <dt>Right first time / working added / after a fix / not yet</dt><dd>When he gets one wrong, the app points at where to look and he tries again. “After a fix” means the answer was wrong and a later try was right. “Working added when asked” means the answer was right from the start but the question asked for working and he showed none until asked; it is not counted as a mistake.</dd>
+      <dt>Points are not a score</dt><dd>Firewood is for taking part. Look at the answers and the evidence columns for how he is doing.</dd>
+      <dt>Evidence, not mastery</dt><dd>“On his own” = right with no hints. “New-looking” = right on a problem shaped unlike ones he had seen. “A week later” = right again after a week or more. Only that last one suggests it has stuck.</dd>
+      <dt>7A only · Advanced</dt><dd>A topic in 7A (the advanced class) that his own class, Math 7, does not cover, from the Math 7 outline Ms Laricchia sent (Units 0–3). Topics after Unit 3 say “beyond the Math 7 outline so far” until she confirms whether the outline is the whole year. Keinan never sees these labels.</dd>
+      <dt>What is not here</dt><dd>Work on paper or on Math Academy, and time spent in the app outside a sitting (for example the horseshoe game while he waits).</dd>
+    </dl></div>
+  </section>
+  <footer>Built by the practice app's Mac service. Nothing on this page is sent anywhere.</footer>
+  </div>`;
+  wire();
+  drawProblems();
+}
+
+let VF = "all";
+function drawProblems(){
+  const fs = $("#fskill").value, fd = $("#fday").value;
+  const list = D.problems.filter(p => (VF === "all" || p.cls === VF) && (!fs || p.skills[0] === fs) && (!fd || p.date === fd));
+  $("#plist").innerHTML = list.length ? list.map(p => `<details class="prob" id="p-${esc(p.id)}" data-id="${esc(p.id)}"><summary>
+      <span class="num">#${p.n}</span>
+      <span class="what">${p.skills.slice(0,1).map(s => `<b>${esc(s)}</b>`).join("")}${advTag(p)} <span class="meta">· ${esc(fmtDate(p.date))} ${esc(p.time)} · ${esc(p.block_word)} · ${esc(p.level)}${p.book ? " · " + esc(p.book.replace("Math 7 Chapter 0 packet · ", "packet ").replace(" (this question is modelled on it)", "")) : ""}</span></span>
+      <span class="pill p-${p.cls}">${esc(VCLS[p.cls] || p.verdict)}</span></summary><div class="body"></div></details>`).join("")
+    : `<p class="empty">No problems match.</p>`;
+  document.querySelectorAll("#plist details").forEach(d => d.addEventListener("toggle", () => { if (d.open) fillProblem(d); }));
+}
+async function fillProblem(d){
+  const body = $(".body", d); if (body.dataset.done) return; body.dataset.done = 1;
+  const p = D.problems.find(x => x.id === d.dataset.id);
+  const pages = p.pages.map(pg => `<div class="pagebox"><div class="pl">${esc(pg.label)}${pg.at ? ` <span class="muted small">${esc(pg.at)}</span>` : ""} · <span class="pill ${pg.right ? "p-right" : "p-notyet"}">${esc(pg.outcome)}</span></div>
+      ${pg.img ? `<img class="inkimg" data-src="${esc(pg.img)}" alt="His handwritten page">` : ""}
+      ${pg.reading ? `<div class="small"><b>What the checker read</b></div><div class="reading">${esc(pg.reading)}</div>` : ""}
+      ${pg.mistake ? `<p><b>The mistake:</b> ${esc(pg.mistake)}</p>` : ""}
+      ${(pg.also || []).filter(Boolean).map(a => `<p><b>Also:</b> ${esc(a)}</p>`).join("")}
+      ${pg.tripped ? `<p><b>Tripped on:</b> ${esc(pg.tripped)}</p>` : ""}
+      ${pg.told_good ? `<p><b>Told him (what was right):</b> ${esc(pg.told_good)}</p>` : ""}
+      ${pg.told_cue ? `<p><b>Told him (where to look):</b> ${esc(pg.told_cue)}</p>` : ""}
+      ${(pg.warn || []).map(w => `<p class="warn small">${esc(w)}</p>`).join("")}</div>`).join("");
+  const extra = [p.seconds ? `took ${Math.floor(p.seconds/60) ? Math.floor(p.seconds/60) + " min " : ""}${p.seconds % 60} s` : "", p.help.length ? "help used: " + p.help.join(", ") : "", p.points ? `${p.points} firewood` : ""].filter(Boolean).join(" · ");
+  const cov = p.coverage || {};
+  body.innerHTML = `${p.book ? `<div class="book">📖 In his book: ${esc(p.book)}</div>` : ""}${cov.level === "advanced" || cov.level === "beyond_outline" ? `<div class="small" style="margin-top:4px">${advTag(p)} ${esc(cov.why || "")}</div>` : (cov.why && cov.level === "both" ? `<div class="small muted" style="margin-top:4px">Note on his class: ${esc(cov.why)}</div>` : "")}<div class="small muted" style="margin-top:4px">${esc(p.section_label)} · ${p.skills.map(s => `<span class="skbadge">${esc(s)}</span>`).join("")}</div>
+    <div class="qtext"><b>Question:</b> ${esc(p.question)}</div><div class="key">Answer key: ${esc(p.key || "—")}</div>
+    ${pages}
+    ${followLine(p) ? `<div class="followbox"><b>Follow-up:</b> ${followLine(p)}</div>` : ""}
+    ${p.lookalike_of ? `<p class="small muted">A look-alike of #${p.lookalike_of}, which he missed.</p>` : ""}
+    ${p.ruling ? `<p class="small"><b>Grown-up's ruling:</b> ${esc(p.ruling)}</p>` : ""}
+    ${p.disputed ? `<p class="warn small">He asked for another look at this one.</p>` : ""}
+    ${extra ? `<p class="small muted">${esc(extra)}</p>` : ""}`;
+  for (const img of body.querySelectorAll("img[data-src]")){
+    try { img.src = await inkSrc(img.dataset.src); } catch(e){ img.replaceWith(Object.assign(document.createElement("p"), {className:"warn small", textContent:"This page image could not be loaded."})); }
+    img.addEventListener("click", () => { const lb = document.createElement("div"); lb.className = "lightbox"; lb.innerHTML = `<img src="${img.src}" alt="">`; lb.onclick = () => lb.remove(); document.body.appendChild(lb); });
+  }
+}
+function goTo(id){
+  VF = "all"; $("#fskill").value = ""; $("#fday").value = "";
+  document.querySelectorAll(".chip[data-v]").forEach(c => c.setAttribute("aria-pressed", c.dataset.v === "all"));
+  drawProblems();
+  const d = document.getElementById("p-" + id); if (!d) return;
+  d.open = true; fillProblem(d); d.scrollIntoView({behavior:"smooth", block:"start"});
+  d.classList.add("flash"); setTimeout(() => d.classList.remove("flash"), 1600);
+}
+function wire(){
+  document.addEventListener("click", e => {
+    const a = e.target.closest("[data-go]"); if (a){ e.preventDefault(); goTo(a.dataset.go); return; }
+    const s = e.target.closest("[data-skill]"); if (s){ e.preventDefault(); VF = "all"; document.querySelectorAll(".chip[data-v]").forEach(c => c.setAttribute("aria-pressed", c.dataset.v === "all")); $("#fday").value = ""; $("#fskill").value = s.dataset.skill; drawProblems(); $("#problems").scrollIntoView({behavior:"smooth"}); return; }
+    const c = e.target.closest(".chip[data-v]"); if (c){ VF = c.dataset.v; document.querySelectorAll(".chip[data-v]").forEach(x => x.setAttribute("aria-pressed", x === c)); drawProblems(); }
+  });
+  $("#fskill").addEventListener("change", drawProblems);
+  $("#fday").addEventListener("change", drawProblems);
+  $("#openall").addEventListener("click", () => document.querySelectorAll("#plist details").forEach(d => { d.open = true; fillProblem(d); }));
+}
+
+(async function start(){
+  if (!CONFIG.locked){ D = window.DASH; $("#app").hidden = false; if (D) render(); else $("#app").textContent = "No data file next to this page."; return; }
+  try { const r = await fetch("lock.json", {cache:"no-store"}); if (r.ok) CONFIG = Object.assign({}, CONFIG, await r.json()); } catch(e) {}
+  if (!window.crypto || !crypto.subtle){ $("#lock").hidden = false; $("#lockmsg").textContent = "This browser cannot open the page (it needs https)."; return; }
+  if (await unlockSaved()){ $("#app").hidden = false; render(); return; }
+  $("#lock").hidden = false;
+  $("#lockform").addEventListener("submit", async e => {
+    e.preventDefault(); $("#lockmsg").textContent = "Opening…";
+    try { await unlock($("#pw").value.trim(), $("#remember").checked); $("#lock").hidden = true; $("#app").hidden = false; render(); }
+    catch(err){ KEYS = null; $("#lockmsg").textContent = "That password did not open it."; }
+  });
+})();
+</script>
+</body>
+</html>
