@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Progress</title>
+<!-- Built by app/make_dashboard.py from app/dashboard_template.html. Do not edit the built copy. -->
+<style>
+:root{
+  --bg:#faf7f2; --panel:#ffffff; --ink:#23201c; --muted:#6d655c; --line:#e6ddd0; --accent:#8a4b1f; --accent-soft:#f3ebe0;
+  --right:#1d6b1d; --right-bg:#e3f3e3; --nowork:#1d6b7a; --nowork-bg:#dff0f3; --fixed:#56700f; --fixed-bg:#eef5d8; --notyet:#9b2a1a; --notyet-bg:#fbe4e0;
+  --todo:#7a5a00; --todo-bg:#fff4d6; --note:#44505e; --note-bg:#eef1f5; --shadow:0 1px 2px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1916; --panel:#24211d; --ink:#ece6dd; --muted:#a79d90; --line:#3a352e; --accent:#e0a36f; --accent-soft:#33291f;
+    --right:#8fd68f; --right-bg:#1e3320; --nowork:#8fd0de; --nowork-bg:#1b3137; --fixed:#c4dc84; --fixed-bg:#2b3319; --notyet:#f0a08f; --notyet-bg:#3d221c;
+    --todo:#f1cf73; --todo-bg:#3a3118; --note:#b8c3d1; --note-bg:#262c34; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1b1916; --panel:#24211d; --ink:#ece6dd; --muted:#a79d90; --line:#3a352e; --accent:#e0a36f; --accent-soft:#33291f;
+  --right:#8fd68f; --right-bg:#1e3320; --nowork:#8fd0de; --nowork-bg:#1b3137; --fixed:#c4dc84; --fixed-bg:#2b3319; --notyet:#f0a08f; --notyet-bg:#3d221c;
+  --todo:#f1cf73; --todo-bg:#3a3118; --note:#b8c3d1; --note-bg:#262c34; --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px 48px}
+header.top{padding:22px 0 8px}
+h1{font-size:26px;margin:0 0 2px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13.5px}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -16px;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{white-space:nowrap;text-decoration:none;color:var(--ink);padding:6px 11px;border-radius:999px;font-size:14px;border:1px solid var(--line);background:var(--panel)}
+nav.tabs a:hover{border-color:var(--accent)}
+section{margin-top:28px}
+h2{font-size:19px;margin:0 0 4px}
+h2 .q{color:var(--muted);font-weight:400;font-size:14px;margin-left:6px}
+h3{font-size:15px;margin:18px 0 6px}
+.lead{color:var(--muted);margin:0 0 12px;font-size:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.stat .v{font-size:26px;font-weight:650;line-height:1.15}
+.stat .l{color:var(--muted);font-size:13px}
+.stat .s{font-size:12.5px;color:var(--muted);margin-top:4px}
+.bar3{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin-top:8px}
+.bar3 i{display:block}
+.i-right{background:var(--right)} .i-nowork{background:var(--nowork)} .i-fixed{background:var(--fixed)} .i-notyet{background:var(--notyet)} .i-other{background:var(--muted)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0;background:var(--c)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tablebox{overflow-x:auto}
+tr.sechead td{background:var(--accent-soft);font-weight:650;font-size:13px;color:var(--accent)}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.p-right{background:var(--right-bg);color:var(--right)} .p-nowork{background:var(--nowork-bg);color:var(--nowork)} .p-fixed{background:var(--fixed-bg);color:var(--fixed)}
+.p-notyet{background:var(--notyet-bg);color:var(--notyet)} .p-skip,.p-none{background:var(--note-bg);color:var(--note)}
+.take{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;margin:8px 0;border:1px solid var(--line);background:var(--panel)}
+.take .tag{flex:none;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:6px;margin-top:2px}
+.t-watch .tag{background:var(--notyet-bg);color:var(--notyet)} .t-good .tag{background:var(--right-bg);color:var(--right)}
+.t-todo .tag{background:var(--todo-bg);color:var(--todo)} .t-note .tag{background:var(--note-bg);color:var(--note)}
+.take .ev{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.review{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--panel);padding:12px 14px;margin:14px 0}
+.review h3{margin:0 0 4px} .review .by{color:var(--muted);font-size:12.5px} .review h4{font-size:13.5px;margin:10px 0 4px}
+.review ul{margin:0;padding-left:18px} .review li{margin:3px 0} .review .bk{display:block;color:var(--muted);font-size:12px}
+.qfig svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:8px}
+.book{font-size:13px;color:var(--accent);margin-top:6px}
+.adv{display:inline-block;border-radius:999px;padding:0 8px;font-size:11.5px;font-weight:700;background:var(--todo-bg);color:var(--todo);margin-left:6px;white-space:nowrap}
+.adv.soft{font-weight:600;background:var(--note-bg);color:var(--note)}
+.follow{display:block;font-size:12.5px;margin-top:2px} .followbox{background:var(--accent-soft);border-radius:8px;padding:6px 10px;margin-top:8px;font-size:13.5px}
+.linkrow a{font-size:13px;margin-right:6px}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:11px}
+.chart .gl{stroke:var(--line)}
+.explain{background:var(--accent-soft);border-radius:12px;padding:12px 14px;font-size:14px}
+.explain dt{font-weight:650;margin-top:6px} .explain dd{margin:0 0 0 0;color:var(--ink)}
+details.how summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+select,input[type=search],input[type=password]{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);max-width:100%}
+.prob{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:8px 0;box-shadow:var(--shadow)}
+.prob>summary{list-style:none;cursor:pointer;padding:10px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.prob>summary::-webkit-details-marker{display:none}
+.prob>summary .num{color:var(--accent);font-weight:700;min-width:32px}
+.prob>summary .what{flex:1 1 260px;min-width:0}
+.prob>summary .meta{color:var(--muted);font-size:12.5px}
+.prob .body{padding:0 12px 12px;border-top:1px dashed var(--line)}
+.qtext{white-space:pre-wrap;margin:10px 0 4px}
+.key{color:var(--muted);font-size:13.5px}
+.pagebox{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+.pagebox .pl{font-weight:650}
+.inkimg{display:block;max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:6px 0;cursor:zoom-in}
+.reading{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;white-space:pre-wrap;background:var(--bg);border-radius:6px;padding:6px 8px}
+.warn{color:var(--notyet)}
+.flash{outline:3px solid var(--accent);outline-offset:2px}
+.skbadge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:12.5px;margin:1px 2px 1px 0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.empty{color:var(--muted);font-style:italic}
+#lock{max-width:380px;margin:18vh auto 0;padding:0 16px}
+#lock form{display:flex;gap:8px;flex-wrap:wrap}
+#lock input[type=password]{flex:1 1 200px}
+.btn{font:inherit;font-size:14px;padding:7px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.lightbox img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+.principle{margin:14px 0;padding:16px}
+.phead{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.phead h3{margin:0;flex:1 1 240px;font-size:16.5px}
+.pnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.principle .idea{margin:8px 0 2px}
+.cols{display:grid;gap:10px 18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:10px}
+.cols h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 4px}
+.cols ul{margin:0;padding-left:18px} .cols li{margin:3px 0}
+.cols .ev{display:block;color:var(--muted);font-size:12px}
+.p-happening{background:var(--right-bg);color:var(--right)} .p-partly{background:var(--fixed-bg);color:var(--fixed)}
+.p-not_yet{background:var(--todo-bg);color:var(--todo)} .p-not_started{background:var(--note-bg);color:var(--note)}
+.stp{display:inline-block;border-radius:6px;padding:1px 7px;font-size:12px;margin:1px 2px 1px 0;border:1px solid var(--line);white-space:nowrap}
+.stp.done{background:var(--right-bg);color:var(--right);border-color:transparent} .stp.due{background:var(--todo-bg);color:var(--todo);font-weight:600;border-color:transparent} .stp.later{color:var(--muted)}
+.principle .tablebox{margin-top:12px}
+.gaps li{margin:5px 0}
+.ticket .v{font-size:28px;font-weight:700;line-height:1.1}
+.ticket ul{margin:6px 0 0;padding-left:18px;font-size:13.5px}
+.photobtn{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--panel);color:var(--accent);border-radius:999px;padding:2px 10px;cursor:pointer;margin:6px 4px 0 0}
+.pp{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:8px 0}
+.pp>summary{list-style:none;cursor:pointer;padding:10px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pp>summary::-webkit-details-marker{display:none}
+.pp .body{padding:0 12px 12px;border-top:1px dashed var(--line)}
+.who{font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 7px;white-space:nowrap}
+.who.t{background:var(--right-bg);color:var(--right)} .who.m{background:var(--note-bg);color:var(--note)} .who.p{background:var(--todo-bg);color:var(--todo)}
+.keys{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.help{grid-column:1/-1} .help ol{margin:4px 0 0;padding-left:18px;font-size:14px;display:flex;flex-wrap:wrap;gap:2px 28px} .help li{margin:2px 0}
+.gap{margin:12px 0;padding:14px 16px} .gap h3{margin:0} .gap h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:12px 0 4px}
+.ex{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0}
+.ex .qtext{margin:4px 0}
+.who.a{background:var(--accent-soft);color:var(--accent)}
+.tlrow{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.tl{display:inline-block;border-radius:6px;padding:2px 8px;font-size:12.5px;white-space:nowrap}
+.tl.good{background:var(--right-bg);color:var(--right)} .tl.mixed{background:var(--fixed-bg);color:var(--fixed)} .tl.bad{background:var(--notyet-bg);color:var(--notyet)}
+.prob .qline{display:block;font-size:13.5px;margin-top:2px}
+.filters .sep{flex:0 0 8px}
+details.card>summary{cursor:pointer}
+footer{margin-top:40px;color:var(--muted);font-size:12.5px}
+@media print{nav.tabs{display:none} .prob{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div id="lock" hidden>
+  <h1>Progress</h1>
+  <p class="sub">This page is locked. Type the password you were given.</p>
+  <form id="lockform" autocomplete="on">
+    <input type="text" name="username" value="progress" autocomplete="username" hidden>
+    <input id="pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Password" required>
+    <button class="btn" type="submit">Open</button>
+    <label class="small muted" style="flex-basis:100%"><input type="checkbox" id="remember"> Remember on this device</label>
+  </form>
+  <p id="lockmsg" class="warn small" role="alert"></p>
+</div>
+<div id="app" hidden></div>
+
+<script>
+let CONFIG = {"locked": true, "salt": "97d32852ce530716089638c5e8b51c71", "iter": 310000};
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const plural = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + "s")}`;
+const fmtDate = d => { if (!d) return ""; const x = new Date(d + "T12:00:00"); return x.toLocaleDateString(undefined, {weekday:"short", day:"numeric", month:"short"}); };
+const VCLS = {right:"Right first time", nowork:"Right; working added when asked", fixed:"Right after a fix", notyet:"Not yet right", skip:"Skipped", none:"Not checked"};
+let KEYS = null, D = null;
+
+/* ── the lock: PBKDF2 -> AES-CBC + HMAC, as app/make_dashboard.py seals it ── */
+const hex2buf = h => new Uint8Array(h.match(/../g).map(b => parseInt(b, 16)));
+async function deriveKeys(pw){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
+  const bits = new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:hex2buf(CONFIG.salt), iterations:CONFIG.iter}, base, 512));
+  return {raw: bits, enc: await crypto.subtle.importKey("raw", bits.slice(0,32), "AES-CBC", false, ["decrypt"]),
+          mac: await crypto.subtle.importKey("raw", bits.slice(32), {name:"HMAC", hash:"SHA-256"}, false, ["verify"])};
+}
+async function openSealed(buf){
+  const b = new Uint8Array(buf), iv = b.slice(0,16), ct = b.slice(16, b.length - 32), tag = b.slice(b.length - 32);
+  const signed = b.slice(0, b.length - 32);
+  if (!await crypto.subtle.verify("HMAC", KEYS.mac, tag, signed)) throw new Error("bad");
+  return crypto.subtle.decrypt({name:"AES-CBC", iv}, KEYS.enc, ct);
+}
+async function fetchSealed(path){
+  const r = await fetch(path, {cache:"no-store"});
+  if (!r.ok) throw new Error("missing " + path);
+  return openSealed(await r.arrayBuffer());
+}
+async function unlock(pw, remember){
+  KEYS = await deriveKeys(pw);
+  const plain = await fetchSealed("data.bin");
+  D = JSON.parse(new TextDecoder().decode(plain));
+  try { if (remember) localStorage.setItem("dash-key", Array.from(KEYS.raw).map(x => x.toString(16).padStart(2,"0")).join("") + ":" + CONFIG.salt); } catch(e) {}
+}
+async function unlockSaved(){
+  let saved = null; try { saved = localStorage.getItem("dash-key"); } catch(e) {}
+  if (!saved) return false;
+  const [k, salt] = saved.split(":");
+  if (salt !== CONFIG.salt) { try { localStorage.removeItem("dash-key"); } catch(e) {} return false; }
+  const bits = hex2buf(k);
+  KEYS = {raw: bits, enc: await crypto.subtle.importKey("raw", bits.slice(0,32), "AES-CBC", false, ["decrypt"]),
+          mac: await crypto.subtle.importKey("raw", bits.slice(32), {name:"HMAC", hash:"SHA-256"}, false, ["verify"])};
+  try { D = JSON.parse(new TextDecoder().decode(await fetchSealed("data.bin"))); return true; }
+  catch(e){ try { localStorage.removeItem("dash-key"); } catch(_) {} KEYS = null; return false; }
+}
+const imgCache = {};
+async function inkSrc(path){
+  if (!CONFIG.locked) return path;
+  if (imgCache[path]) return imgCache[path];
+  const buf = await fetchSealed((D.ink_names || {})[path] || path.replace(/\.png$/, ".bin"));
+  return imgCache[path] = URL.createObjectURL(new Blob([buf], {type: /\.jpe?g$/i.test(path) ? "image/jpeg" : "image/png"}));
+}
+
+/* ── small charts, drawn as SVG ── */
+function barChart(rows, {value, label, stack, height = 160, unit = ""}){
+  if (!rows.length) return `<p class="empty">Nothing yet.</p>`;
+  const W = Math.max(320, rows.length * 56), H = height, pad = {l:34, r:8, t:10, b:34};
+  const vals = rows.map(r => stack ? stack.reduce((s, k) => s + (r[k.key] || 0), 0) : (value(r) || 0));
+  const max = Math.max(1, ...vals), step = max <= 5 ? 1 : Math.ceil(max / 4);
+  const top = Math.ceil(max / step) * step, ih = H - pad.t - pad.b, bw = Math.min(36, (W - pad.l - pad.r) / rows.length * .62);
+  let g = "";
+  for (let v = 0; v <= top; v += step){ const y = pad.t + ih - ih * v / top; g += `<line class="gl" x1="${pad.l}" x2="${W - pad.r}" y1="${y}" y2="${y}"/><text x="${pad.l - 6}" y="${y + 4}" text-anchor="end">${v}</text>`; }
+  rows.forEach((r, i) => {
+    const cx = pad.l + (i + .5) * (W - pad.l - pad.r) / rows.length;
+    let y = pad.t + ih;
+    const parts = stack || [{key:null, cls:"i-accent"}];
+    parts.forEach(p => {
+      const v = p.key ? (r[p.key] || 0) : (value(r) || 0), h = ih * v / top;
+      if (h > 0){ y -= h; g += `<rect x="${cx - bw/2}" y="${y}" width="${bw}" height="${h}" rx="3" fill="var(${p.color || "--accent"})"><title>${esc(label(r))}: ${v}${unit}${p.name ? " " + p.name : ""}</title></rect>`; }
+    });
+    g += `<text x="${cx}" y="${H - pad.b + 16}" text-anchor="middle">${esc(label(r))}</text>`;
+  });
+  return `<div class="tablebox"><svg class="chart" viewBox="0 0 ${W} ${H}" style="min-width:${Math.min(W, 640)}px" role="img">${g}</svg></div>`;
+}
+const bar3 = (x, o = 0) => { const r = x.right || 0, w = x.nowork || 0, f = x.fixed || 0, n = x.notyet || 0, t = Math.max(1, r + w + f + n + o); return `<div class="bar3" title="${r} right first time, ${w} right with working added when asked, ${f} after a fix, ${n} not yet${o ? ", " + o + " other" : ""}"><i class="i-right" style="width:${100*r/t}%"></i><i class="i-nowork" style="width:${100*w/t}%"></i><i class="i-fixed" style="width:${100*f/t}%"></i><i class="i-notyet" style="width:${100*n/t}%"></i><i class="i-other" style="width:${100*o/t}%"></i></div>`; };
+const LEGEND = `<div class="legend"><span style="--c:var(--right)">right first time</span><span style="--c:var(--nowork)">right, working added when asked</span><span style="--c:var(--fixed)">right after a fix</span><span style="--c:var(--notyet)">not yet right</span></div>`;
+const probLinks = ids => ids && ids.length ? `<span class="linkrow">${ids.map(id => { const p = D.problems.find(x => x.id === id); return p ? `<a href="#p-${esc(id)}" data-go="${esc(id)}">#${p.n}</a>` : ""; }).join("")}</span>` : "";
+
+/* Lindsay 2026-09-25: mark a topic his class (Math 7) does not cover. Adults only: his screens never say it. */
+function advTag(p){
+  const c = p.coverage || {};
+  if (c.level === "advanced") return `<span class="adv" title="${esc(c.why || "")}">7A only · Advanced</span>`;
+  if (c.level === "beyond_outline") return `<span class="adv soft" title="${esc(c.why || "")}">beyond the Math 7 outline so far</span>`;
+  return "";
+}
+/* a missed problem's follow-up: later problems of the same shape, or that the app owes him one */
+const MARK = {right: "✓ right", nowork: "✓ right (working added)", fixed: "✗ then fixed", notyet: "✗ not yet"};
+function followLine(p){
+  const L = p.lookalikes || [];
+  if (L.length) return "Look-alikes since: " + L.map(q => `<a href="#p-${esc(q.id)}" data-go="${esc(q.id)}">#${q.n}</a> ${esc(MARK[q.cls] || q.cls)}`).join(", ") + (p.lookalike_due ? " · another is due at his next sitting" : "");
+  return p.lookalike_due ? "No look-alike yet: the app gives him one at his next sitting." : "";
+}
+/* Lindsay's latest review of his work, in plain words (work/app-reviews.json) */
+function reviewBlock(){
+  const r = D.review; if (!r) return "";
+  const item = x => `<li>${x.id ? `<a href="#p-${esc(x.id)}" data-go="${esc(x.id)}">#${x.n}</a>` : "#" + esc(x.n)}${x.skill ? ` <b>${esc(x.skill)}</b>:` : ""} ${esc(x.what)}${followLine(x) ? `<span class="follow">${followLine(x)}</span>` : ""}${x.book ? `<span class="bk">${esc(x.book.replace(" (this question is modelled on it)", ""))}</span>` : ""}</li>`;
+  const list = (t, xs) => xs && xs.length ? `<h4>${t}</h4><ul>${xs.map(item).join("")}</ul>` : "";
+  return `<div class="review"><h3>Reviewed by ${esc(r.by)}, ${esc(fmtDate(r.date))}</h3><div class="by">${esc(r.covers || "")}${r.written_by ? " · summary written by " + esc(r.written_by) : ""}</div>
+    <p><b>${esc(r.headline)}</b></p>${list("His mistakes", r.his_mistakes)}${list("Not a mistake", r.not_mistakes)}${list("The checker's mistakes (corrected)", r.checker_mistakes)}
+    ${r.watch && r.watch.length ? `<h4>Worth watching</h4><ul>${r.watch.map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+    ${r.follow_up ? `<p class="small">${esc(r.follow_up)}</p>` : ""}${r.caution ? `<p class="small muted">${esc(r.caution)}</p>` : ""}</div>`;
+}
+
+/* ── the page (rebuilt 2026-09-26 on Lindsay's brief): key numbers · where he needs help · is he improving ·
+   every problem (app, class, Math Academy) · how he learns · time · how to read ── */
+const SRCW = {app: "App", class: "Class", ma: "Math Academy"};
+const RESW = {right: ["Right", "p-right"], nowork: ["Right (working added when asked)", "p-nowork"], fixed: ["Wrong, then fixed", "p-fixed"],
+              wrong: ["Wrong", "p-notyet"], partial: ["Incomplete", "p-fixed"], other: ["Not marked", "p-none"], guess: ["A guess", "p-none"]};
+/* a lesson question (09-27): his picks in order; right or wrong on the FIRST pick; a guess is never counted wrong */
+const resPill = x => x.res === "guess" && x.lqword ? [x.lqword[0].toUpperCase() + x.lqword.slice(1), "p-none"] : x.lq && x.res === "wrong" ? ["Wrong first pick", "p-notyet"] : x.lq && x.res === "right" ? ["Right first pick", "p-right"] : RESW[x.res];
+const lqTag = x => x.lq ? ` <span class="who p">Lesson question</span>` : "";
+const isRight = x => x.res === "right" || x.res === "nowork";
+const byId = id => (D.everything || []).find(x => x.id === id);
+const srcTag = x => `<span class="who ${x.src === "app" ? "a" : x.teacher ? "t" : x.src === "ma" ? "m" : "p"}">${x.src === "app" ? "App" : x.teacher ? "Class · teacher-marked" : x.src === "ma" ? "Math Academy" : "Class · read from a photo"}</span>`;
+const goLinkU = (id, text) => `<a href="#u-${esc(id)}" data-go="${esc(id)}">${esc(text)}</a>`;
+function exampleBox(id){
+  const x = byId(id); if (!x) return "";
+  return `<div class="ex">${srcTag(x)} <span class="muted small">${esc(x.where)} · ${esc(fmtDate(x.date))}</span>
+    <div class="qtext"><b>Question:</b> ${esc(x.question)}</div>
+    <div>${x.lq ? esc(x.his || "No pick recorded") : `<b>He wrote:</b> ${x.his && x.his !== "UNKNOWN" ? esc(x.his) : '<span class="muted">not visible</span>'}`} · <b>Right answer:</b> ${esc(x.key || "—")} <span class="pill ${resPill(x)[1]}">${esc(resPill(x)[0])}</span></div>
+    <div class="small">${goLinkU(id, "Open it with the page")}</div></div>`;
+}
+const evLine = ev => ["app", "class", "ma"].filter(k => ev[k]).map(k => `${SRCW[k]} ${ev[k].right} of ${ev[k].tried} right`).join(" · ");
+
+/* the savings jar (Lindsay 2026-09-27): earned = whole dollars from counted firewood + bonuses; owed = earned − paid */
+function jarSection(){
+  const M = D.money; if (!M) return "";
+  if (M.error) return `<div class="card" style="margin-top:12px"><b>Savings jar</b><p class="warn small">Could not be worked out: ${esc(M.error)}</p></div>`;
+  const f = M.firewood, dd = M.dollars, s = M.semester, p = M.payouts, cp = f.checkpoint, rc = M.reconstructed;
+  const pct = s.goal_dollars ? Math.round(100 * dd.earned / s.goal_dollars) : null;
+  return `<div class="card" id="jar" style="margin-top:12px"><h3 style="margin-top:0">Savings jar <span class="muted small">(${esc(M.rate)} firewood = $1; counts from ${esc(fmtDate(M.counts_from))})</span></h3>
+    <div class="grid keys" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+      <div class="stat"><div class="l">Earned</div><div class="v">$${esc(dd.earned)}</div><div class="s">$${esc(dd.from_firewood)} from firewood · $${esc(dd.bonuses)} bonuses</div></div>
+      <div class="stat"><div class="l">Paid so far</div><div class="v">$${esc(p.paid)}</div><div class="s">${p.rows.length ? p.rows.map(r => esc(r.date) + " $" + esc(r.amount)).join(" · ") : "no payouts recorded"}</div></div>
+      <div class="stat"><div class="l">Owed now</div><div class="v">$${esc(p.owed)}</div><div class="s">earned − paid</div></div>
+      <div class="stat"><div class="l">This week</div><div class="v">${esc(M.week.firewood)} <span class="small muted">firewood</span></div><div class="s">+ $${esc(M.week.bonus_dollars)} bonuses since ${esc(fmtDate(M.week.from))}</div></div>
+      <div class="stat"><div class="l">Quests this week</div><div class="v">${esc(M.week.quests || 0)} <span class="small muted">firewood</span></div><div class="s">regular quests</div></div>
+      <div class="stat"><div class="l">Mega quest</div><div class="v">${esc(M.week.mega_quest || 0)} <span class="small muted">firewood</span></div><div class="s">this week</div></div>
+      <div class="stat"><div class="l">Duel firewood</div><div class="v">${esc(M.week.duel || 0)} <span class="small muted">firewood</span></div><div class="s">this week (${esc(M.week.work || 0)} from ordinary work)</div></div>
+      <div class="stat"><div class="l">Semester goal</div><div class="v">${pct == null ? "—" : pct + "%"}</div><div class="s">$${esc(s.goal_dollars)} by ${esc(fmtDate(s.ends))}${s.top_limit ? "" : "; no top limit"}</div></div>
+    </div>
+    <p class="small">Firewood in the ledger: <b>${esc(f.total)}</b>; counted toward money: <b>${esc(f.counted)}</b>${f.excluded ? `; left out: ${esc(f.excluded)} award${f.excluded === 1 ? "" : "s"} (${esc(f.excluded_firewood)} firewood) — ${[...new Set(f.excluded_list.map(x => x.why))].map(esc).join(", ")}` : ""}. The next dollar needs ${esc(dd.next_dollar_needs)} more.</p>
+    <p class="small">${cp ? `Opening balance from the iPad: <b>${esc(cp.n)}</b> firewood at ${esc(cp.at)}.` : "No opening balance from the iPad yet: it is sent the first time the new app opens in his mode."}${rc ? ` This project's count from the iPad's learn log up to ${esc(rc.up_to)} was ${esc(rc.n)} (${esc(rc.detail)}).` : ""}</p>
+    ${M.bonuses.length ? `<p class="small"><b>Bonuses:</b> ${M.bonuses.map(b => `${esc(fmtDate(b.date))} ${esc(b.what)} $${esc(b.dollars)}`).join(" · ")}</p>` : `<p class="small muted">No bonuses yet.</p>`}
+    ${firewoodWeeks(M)}
+  </div>`;
+}
+/* where the firewood came from, week by week (Monday to Sunday): ordinary work, quests, the mega quest, the duel */
+function firewoodWeeks(M){
+  const K = M.by_kind || {}, W = M.weeks || [];
+  const all = `<p class="small">All time, counted: <b>${esc(K.work || 0)}</b> from ordinary work · <b>${esc(K.quest || 0)}</b> from quests · <b>${esc(K.mega_quest || 0)}</b> from the mega quest · <b>${esc(K.duel || 0)}</b> from the duel.</p>`;
+  if (!W.length) return all;
+  return all + `<div class="tablebox"><table><tr><th>Week</th><th class="n">Work</th><th class="n">Quests</th><th class="n">Mega quest</th><th class="n">Duel</th><th class="n">Total</th></tr>
+    ${W.slice().reverse().map(w => `<tr><td>${esc(fmtDate(w.from))} – ${esc(fmtDate(w.to))} <span class="muted small">${esc(w.week)}</span></td><td class="n">${esc(w.work)}</td><td class="n">${esc(w.quest)}</td><td class="n">${esc(w.mega_quest)}</td><td class="n">${esc(w.duel)}</td><td class="n"><b>${esc(w.total)}</b></td></tr>`).join("")}
+  </table></div>`;
+}
+/* the ask box (Lindsay 2026-09-27): every question he typed in a lesson, and the answer he was shown */
+function asksSection(){
+  const A = D.asks || [];
+  const row = a => `<div class="card" id="ask-${esc(a.id)}"><div class="small muted">${esc(fmtDate(a.date))} ${esc(a.time || "")} · ${esc(a.where)}</div>
+      <p style="margin:6px 0"><b>He asked:</b> ${esc(a.question)}</p>
+      ${a.refused ? `<p class="warn small">Not answered: ${esc(a.refused === "named" ? "the question named someone, so it was not sent" : a.refused === "daily_cap" ? "the day's checker limit was reached" : a.refused)}.</p>`
+                  : `<p style="margin:6px 0"><b>He was told:</b> ${esc(a.answer)}</p>`}
+      ${a.not_shown ? `<p class="warn small">The model's own words were held back (${esc(a.not_shown_why)}): “${esc(a.not_shown)}”</p>` : ""}
+      ${a.lesson_text ? `<details class="small"><summary>What was on his screen</summary><pre style="white-space:pre-wrap;margin:6px 0">${esc(a.lesson_text)}</pre></details>` : ""}
+      ${a.stubbed ? `<p class="small muted">A stubbed answer (a test run, not the real model).</p>` : ""}</div>`;
+  return `<section id="asks"><h2>Questions he asked <span class="q">The ask box in his lessons: every question, and the answer given</span></h2>
+    <p class="lead">${A.length ? `${plural(A.length, "question")}, newest first. Each is one short answer from the checker's model, inside the daily limit; it explains the idea and never gives a problem's answer.` : "He has not used the ask box yet."}</p>
+    ${A.map(row).join("")}
+  </section>`;
+}
+function keySection(){
+  const g = D.glance, A = g.all, W = g.week, K = D.key || {};
+  return `<div class="grid keys">
+    <div class="card stat"><div class="l">App this week</div><div class="v">${W.minutes} min</div><div class="s">${plural(W.sittings, "sitting")}${W.planned ? ` of ${W.planned} planned` : ""} · ${plural(W.problems, "problem")}</div></div>
+    <div class="card stat"><div class="l">App, all time</div><div class="v">${A.problems} <span class="small muted">problems</span></div><div class="s">${A.minutes} min · ${A.right + A.nowork} right first time</div>${bar3(A, A.other)}</div>
+    <div class="card stat"><div class="l">In class (on paper)</div><div class="v">${K.class_items || 0} <span class="small muted">problems</span></div><div class="s">${K.class_items ? `${K.class_right} right · reached lesson ${esc(K.class_reached || "?")}` : "none on file"}</div></div>
+    <div class="card stat"><div class="l">Latest class score</div><div class="v">${K.latest ? esc(K.latest.score) : "—"}</div><div class="s">${K.latest ? `${esc(K.latest.name)}, marked by his teacher · received ${esc(fmtDate(K.latest.date))}` : "no teacher-marked work yet"}</div></div>
+    <div class="card stat help"><div class="l">Needs help on</div>${(K.needs_help || []).length ? `<ol>${K.needs_help.map(h => `<li><a href="#gap-${esc(h.id)}">${esc(h.title)}</a></li>`).join("")}</ol>` : '<div class="s">Nothing flagged.</div>'}</div>
+  </div>`;
+}
+/* Lindsay 2026-09-27: "easy analysis of where his trouble spots are and how he's progressing" */
+const TREND = {"fixed": ["Fixed", "p-right"], "improving": ["Improving", "p-fixed"], "still happening": ["Still happening", "p-not_yet"],
+               "new": ["New", "p-notyet"], "not seen since": ["Not seen since", "p-none"]};
+function glanceSection(){
+  const G = (D.gaps || {}).gaps || []; if (!G.length) return "";
+  const first = s => String(s || "").split(/(?<=\.)\s/)[0];
+  return `<div class="card" style="margin-top:12px"><b>Trouble spots at a glance</b>
+    <div class="tablebox"><table><tr><th>Trouble spot</th><th>Trend</th><th>Last seen</th><th>Where it stands</th></tr>
+    ${G.map(g => { const tr = TREND[g.trend] || [g.trend || "—", "p-none"]; return `<tr><td><a href="#gap-${esc(g.id)}"><b>${esc(g.title)}</b></a></td><td><span class="pill ${tr[1]}">${esc(tr[0])}</span></td><td class="small">${g.last_seen ? esc(fmtDate(g.last_seen)) : "—"}</td><td class="small">${esc(g.headline || first(g.status))}</td></tr>`; }).join("")}
+    </table></div></div>`;
+}
+function dayByDay(){
+  const R = D.progress_days || []; if (!R.length) return "";
+  return `<div class="card"><b>Day by day in the app</b>
+    ${barChart(R, {value: r => r.rate, label: r => fmtDate(r.date).replace(/^\w+,? /, ""), unit: "% right first time"})}
+    <div class="tablebox"><table><tr><th>Day</th><th class="n">Minutes</th><th class="n">Problems</th><th class="n">Right first time</th><th class="n">Fixed</th><th class="n">Not yet</th><th>Topics</th></tr>
+    ${R.map(r => `<tr><td>${esc(fmtDate(r.date))}</td><td class="n">${r.minutes}</td><td class="n">${r.problems}</td><td class="n"><b>${r.right_first}</b> (${r.rate}%)</td><td class="n">${r.fixed}</td><td class="n">${r.notyet}</td><td>${r.topics.map(esc).join(", ")}</td></tr>`).join("")}
+    </table></div><p class="small muted">Lesson questions are left out. Minutes are the larger of his sittings' time and the time on each problem. More topics in a day means harder, more mixed work, so a steady "right first time" while the topics grow is progress.</p></div>`;
+}
+function gapsSection(){
+  const G = (D.gaps || {}).gaps || [];
+  if (!G.length) return "";
+  return `<section id="gaps"><h2>Where he needs help <span class="q">What goes wrong, with an example</span></h2>
+    <p class="lead">Written by ${esc(D.gaps.by || "this project")} on ${esc(fmtDate(D.gaps.on))}. The counts under each are worked out from all his work and update themselves; the words are rewritten as things change.</p>
+    ${G.map((x, i) => `<div class="card gap" id="gap-${esc(x.id)}"><div class="phead"><span class="pnum">${i + 1}</span><h3>${esc(x.title)}</h3></div>
+      <p>${esc(x.description)}</p>
+      <div class="small muted">Skills: ${x.skills.map(s => `<span class="skbadge">${esc(s)}</span>`).join("")} · Problems on these skills: ${esc(evLine(x.evidence) || "none yet")}</div>
+      ${x.examples.length ? `<h4>${x.examples.length > 1 ? "Examples" : "Example"}</h4>${x.examples.map(exampleBox).join("")}` : ""}
+      <p class="small"><a href="#prog-${esc(x.id)}">Is he improving? →</a></p></div>`).join("")}
+  </section>`;
+}
+/* Lindsay 2026-10-09: "good data and tracking on the questions he gets wrong and how he is progressing / is he improving" */
+const MSTATE = {open: ["Not yet practised again", "p-notyet"], missed_again: ["Missed again", "p-notyet"], cleared: ["Fixed: right on a look-alike", "p-fixed"],
+                held: ["Held: right again a week later", "p-right"], waiting: ["Waiting for you: is it wrong?", "p-none"]};
+function mistakesSection(){
+  const M = D.mistakes; if (!M || !M.rows.length) return "";
+  const S = M.summary, pct = v => v === null || v === undefined ? "—" : v + "%";
+  const card = (l, v, sub) => `<div class="card stat"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="s">${sub}</div></div>`;
+  const wk = M.weeks.slice(-8);
+  const tries = r => r.tries.length ? r.tries.map(t => `<span class="pill ${t.right ? "p-right" : "p-notyet"}" title="${esc(fmtDate(t.date))}">${esc(fmtDate(t.date).replace(/^\w+,? /, ""))} ${t.right ? "right" : "missed"}</span>`).join(" ") : '<span class="small muted">none yet</span>';
+  return `<section id="mistakes"><h2>Mistakes <span class="q">Every one on record, and what has happened since</span></h2>
+    <p class="lead">A mistake counts when it is clearly wrong: marked by his teacher, checked by you, or judged by the app's checker. After a mistake the app gives him a look-alike (the same kind of problem, new numbers) in his normal practice. Right on his own clears it; right again a week or more later means it held.</p>
+    <div class="grid">${card("Mistakes on record", S.total, `${S.app} in the app · ${S.class} in class`)}${card("Still open", S.open, `${S.missed_again} missed again on a look-alike`)}${card("Fixed", S.cleared + S.held, `${S.held} held a week later`)}${S.waiting ? card("Waiting for you", S.waiting, "class answers to confirm as wrong") : ""}</div>
+    <div class="card" style="margin-top:12px"><b>Week by week</b>
+      ${barChart(wk, {value: w => w.app_rate || 0, label: w => fmtDate(w.monday).replace(/^\w+,? /, ""), unit: "% right first time (app)"})}
+      <div class="tablebox"><table><tr><th>Week of</th><th class="n">App problems</th><th class="n">Right first time</th><th class="n">Class problems</th><th class="n">Class right</th><th class="n">New mistakes</th><th class="n">Fixed</th><th class="n">Open at week end</th></tr>
+      ${wk.map(w => `<tr><td>${esc(fmtDate(w.monday))}</td><td class="n">${w.app_done}</td><td class="n">${pct(w.app_rate)}</td><td class="n">${w.class_done}</td><td class="n">${pct(w.class_rate)}</td><td class="n">${w.new}</td><td class="n">${w.cleared}</td><td class="n"><b>${w.open_at_end}</b></td></tr>`).join("")}
+      </table></div>
+      <p class="small muted">Improving looks like: right-first-time steady or rising while the work gets harder, and "open at week end" falling. Class dates are when the work reached us; he may have done it earlier. Lesson questions are left out.</p></div>
+    <div class="tablebox"><table><tr><th>Date</th><th>Where</th><th>Problem</th><th>Right answer</th><th>Skill</th><th>Since then</th><th>Where it stands</th></tr>
+    ${M.rows.map(r => { const st = MSTATE[r.state] || [r.state, "p-none"]; return `<tr><td class="small">${esc(fmtDate(r.date))}</td><td class="small">${r.id ? goLinkU(r.id, r.where) : esc(r.where)}</td><td>${esc(r.question || "")}${r.his ? `<div class="small muted">He wrote: ${esc(r.his)}</div>` : ""}</td><td class="small">${esc(r.key || "")}</td><td class="small">${esc((r.skills || []).join(", "))}</td><td class="small">${tries(r)}</td><td><span class="pill ${st[1]}">${esc(st[0])}</span>${r.cleared_on ? `<div class="small muted">fixed ${esc(fmtDate(r.cleared_on))}</div>` : ""}</td></tr>`; }).join("")}
+    </table></div></section>`;
+}
+function progressSection(){
+  const G = (D.gaps || {}).gaps || [];
+  let lastSec = null;
+  const pap = s => s.paper || {tried:0, right:0, wrong:0, teacher_tried:0, teacher_right:0, teacher_wrong:0};
+  const skillRows = D.skills.filter(s => s.tried || pap(s).tried).map(s => { const b = pap(s); return (s.section !== lastSec ? `<tr class="sechead"><td colspan="6">${esc(lastSec = s.section)}</td></tr>` : "") + `<tr><td><b>${esc(s.label)}</b></td><td class="n">${s.tried ? `${s.right + s.nowork} of ${s.tried}` : "—"}</td><td class="n">${b.tried ? `${b.right} of ${b.tried}` : "—"}</td><td class="n">${b.teacher_tried ? `${b.teacher_right} of ${b.teacher_tried}` : "—"}</td><td class="n"><b>${s.all_right} of ${s.all_tried}</b></td><td class="small">${s.records.week_later ? `right a week later ${s.records.week_later}×` : "not re-checked a week later yet"}</td></tr>`; }).join("");
+  return `<section id="progress"><h2>Is he improving? <span class="q">Each skill he is working on, and when it is tested again</span></h2>
+    ${dayByDay()}
+    <p class="lead">Each chip is one day's work on that skill, oldest first: <span class="tl good">right every time</span> <span class="tl mixed">some wrong</span> <span class="tl bad">mostly wrong</span>. Dates for class work are when it reached us; the day he did it can be earlier.</p>
+    ${G.map(x => { const e = x.earlier, l = x.latest;
+      const trend = !e.tried ? "Only one day of work so far: too early to say." : `Earlier: ${e.right} of ${e.tried} right. Latest (${fmtDate(x.latest_day)}): ${l.right} of ${l.tried} right.`;
+      return `<div class="card gap" id="prog-${esc(x.id)}"><h3>${esc(x.title)}</h3>
+      <div class="tlrow">${x.timeline.map(b => { const r = b.right / Math.max(1, b.tried); return `<span class="tl ${r === 1 ? "good" : r >= .5 ? "mixed" : "bad"}" title="${b.ids.length ? "open the wrong ones below" : ""}">${esc(fmtDate(b.date).replace(/^\w+,? /, ""))} · ${esc(b.src === "app" ? "app" : b.teacher ? "teacher" : b.src === "ma" ? "Math Academy" : "class")} · ${b.right}/${b.tried}</span>`; }).join("") || '<span class="muted">No work on these skills yet.</span>'}</div>
+      <p class="small">${esc(trend)}</p>
+      <p><b>Where it stands:</b> ${esc(x.status || "")}</p>
+      <p><b>Plan to test it again:</b> ${esc(x.retest || "")}</p>
+      ${x.plan.length ? `<ul class="small">${x.plan.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+      ${x.timeline.some(b => b.ids.length) ? `<p class="small">The wrong ones: ${x.timeline.flatMap(b => b.ids).map(id => { const y = byId(id); return y ? goLinkU(id, (y.src === "app" ? "#" + y.n : SHORTW(y)) ) : ""; }).join(", ")}</p>` : ""}</div>`; }).join("")}
+    <details class="card"><summary><b>Every skill: all his work, right</b></summary>
+      <div class="tablebox"><table><tr><th>Skill</th><th class="n">App, right first time</th><th class="n">Class & Math Academy, right</th><th class="n">Teacher-marked, right</th><th class="n">All together</th><th>Stuck? (a week later)</th></tr>${skillRows}</table></div>
+      <p class="small muted">Class problems were matched to skills by this project from each problem's wording (work/paper-skills.csv)${D.paper && D.paper.no_skill ? `; ${D.paper.no_skill} Math Academy problems match no skill in the app and are left out` : ""}.</p></details>
+  </section>`;
+}
+const SHORTW = y => `${String(y.source || "").replace(/^Math 7 /, "").replace("EXIT TICKET", "ticket").replace("REVIEW SHEET", "review").replace("packet Ch0", "packet").replace("Math Academy placement exam", "MA diagnostic").replace(/^Math Academy$/, "MA")} #${y.item}`;
+
+function allSection(){
+  const E = D.everything || [];
+  const skills = [...new Set(E.flatMap(x => (x.skills || []).slice(0, 1)))].sort();
+  const n = k => E.filter(x => k === "all" || x.src === k).length;
+  return `<section id="problems"><h2>Every problem <span class="q">The app, his class work and Math Academy</span></h2>
+    <p class="lead">Newest first. Each shows the skill, the question, what he wrote and whether it was right. Open one for his page: his handwriting in the app, or a photo of the class page. Who judged it is on each: the app's checker, his teacher, Math Academy, or this project reading a photo (provisional until someone checks the paper).</p>
+    <div class="filters" role="toolbar">
+      ${[["all", "All"], ["app", "App"], ["class", "Class"], ["ma", "Math Academy"]].map(([k, w]) => `<button class="chip" data-src="${k}" aria-pressed="${k === "all"}">${w} (${n(k)})</button>`).join("")}
+      <span class="sep"></span>
+      ${[["all", "Any result"], ["wrong", "Wrong"], ["right", "Right"]].map(([k, w]) => `<button class="chip" data-res="${k}" aria-pressed="${k === "all"}">${w}</button>`).join("")}
+      <select id="fskill" aria-label="Skill"><option value="">Every skill</option>${skills.map(s => `<option>${esc(s)}</option>`).join("")}</select>
+    </div>
+    <p class="small muted" id="plcount"></p>
+    <div id="plist"></div>
+  </section>`;
+}
+let FSRC = "all", FRES = "all", SHOWN = 60;
+function drawProblems(){
+  const fs = $("#fskill").value;
+  const L = (D.everything || []).filter(x => (FSRC === "all" || x.src === FSRC) && (FRES === "all" || (FRES === "right" ? isRight(x) : !isRight(x) && x.res !== "other" && x.res !== "guess")) && (!fs || (x.skills || [])[0] === fs));
+  $("#plcount").textContent = `${L.length} problem${L.length === 1 ? "" : "s"}` + (L.length > SHOWN ? `, showing the newest ${SHOWN}` : "");
+  $("#plist").innerHTML = L.length ? L.slice(0, SHOWN).map(x => `<details class="prob" id="u-${esc(x.id)}" data-id="${esc(x.id)}"><summary>
+      ${srcTag(x)}${lqTag(x)}<span class="what"><b>${esc((x.skills || [])[0] || (x.lq ? x.section || "lesson question" : "no matching skill"))}</b> <span class="meta">· ${esc(fmtDate(x.date))}${x.time ? " " + esc(x.time) : ""} · ${esc(x.src === "app" ? (x.n ? "#" + x.n : "from the iPad's log") : x.where)}</span>
+      <span class="qline">${esc(String(x.question || "").slice(0, 110))}${String(x.question || "").length > 110 ? "…" : ""}</span>
+      <span class="small">${x.lq ? esc(String(x.his || "No pick recorded").slice(0, 120)) : `<b>He wrote:</b> ${x.his && x.his !== "UNKNOWN" ? esc(String(x.his).slice(0, 80)) + (String(x.his).length > 80 ? "…" : "") : '<span class="muted">not visible</span>'}`} · <b>Right answer:</b> ${esc(String(x.key || "—").slice(0, 60))}</span></span>
+      <span class="pill ${resPill(x)[1]}">${esc(resPill(x)[0])}</span></summary><div class="body"></div></details>`).join("")
+      + (L.length > SHOWN ? `<button class="chip" id="more" type="button">Show ${Math.min(60, L.length - SHOWN)} more</button>` : "")
+    : `<p class="empty">No problems match.</p>`;
+  document.querySelectorAll("#plist details").forEach(d => d.addEventListener("toggle", () => { if (d.open) fillProblem(d); }));
+  const more = $("#more"); if (more) more.addEventListener("click", () => { SHOWN += 60; drawProblems(); });
+}
+async function fillProblem(d){
+  const body = $(".body", d); if (body.dataset.done) return; body.dataset.done = 1;
+  const x = byId(d.dataset.id);
+  if (x.src !== "app"){
+    body.innerHTML = `<div class="small muted" style="margin-top:6px">${srcTag(x)} ${esc(x.where)} · judged by ${esc(x.judge)} · received ${esc(fmtDate(x.date))}</div>
+      <div class="small">${(x.skills || []).length ? "Skills: " + x.skills.map(s => `<span class="skbadge">${esc(s)}</span>`).join("") : '<span class="muted">No matching skill in the app.</span>'}</div>
+      <div class="qtext"><b>Question:</b> ${esc(x.question)}</div>
+      <p><b>He wrote:</b> ${x.his === "UNKNOWN" ? '<span class="muted">not shown on Math Academy’s screens</span>' : esc(x.his || "(blank)")}<br><b>Right answer:</b> ${esc(x.key)}</p>
+      ${x.note ? `<p class="small"><b>Note:</b> ${esc(x.note)}</p>` : ""}
+      ${x.photo ? `<img class="inkimg" data-src="${esc(x.photo)}" alt="Photo of the page">` : '<p class="small muted">No photo on file.</p>'}`;
+  } else {
+    const p = D.problems.find(y => y.id === x.id);
+    const q = p.lq;
+    const lqBox = q ? `<div class="pagebox"><div class="pl">Lesson question · ${esc(q.stage_word)}</div>
+      <p>${q.picks.length ? esc(q.picks_line) : '<span class="muted">No pick recorded.</span>'}</p>
+      <p class="small">${q.guess ? "A guess: never counted as a mistake." : q.first_right ? "Right on his first pick." : q.first_right === false ? "Wrong on his first pick: counted as a missed question." : ""} Picks from ${esc(q.source)}.</p></div>` : "";
+    const pages = lqBox + p.pages.map(pg => `<div class="pagebox"><div class="pl">${esc(pg.label)}${pg.at ? ` <span class="muted small">${esc(pg.at)}</span>` : ""} · <span class="pill ${pg.neutral ? "p-none" : pg.right ? "p-right" : "p-notyet"}">${esc(pg.outcome)}</span></div>
+      ${pg.img ? `<img class="inkimg" data-src="${esc(pg.img)}" alt="His handwritten page">` : ""}
+      ${pg.qimg ? `<div class="small"><b>The question as he marked it</b> <span class="muted">(his marks in blue)</span></div><img class="inkimg" data-src="${esc(pg.qimg)}" alt="The question with his marks">` : ""}
+      ${pg.tap ? `<p><b>${esc(pg.tap)}</b> <span class="muted small">(tapped)</span></p>` : ""}
+      ${pg.reading ? `<div class="small"><b>What the checker read</b></div><div class="reading">${esc(pg.reading)}</div>` : ""}
+      ${pg.mistake ? `<p><b>The mistake:</b> ${esc(pg.mistake)}</p>` : ""}
+      ${(pg.also || []).filter(Boolean).map(a => `<p><b>Also:</b> ${esc(a)}</p>`).join("")}
+      ${pg.told_cue ? `<p><b>Told him (where to look):</b> ${esc(pg.told_cue)}</p>` : ""}
+      ${(pg.warn || []).map(w => `<p class="warn small">${esc(w)}</p>`).join("")}</div>`).join("");
+    const cov = p.coverage || {};
+    body.innerHTML = `${p.book ? `<div class="book">📖 In his book: ${esc(p.book)}</div>` : ""}${cov.level === "advanced" || cov.level === "beyond_outline" ? `<div class="small" style="margin-top:4px">${advTag(p)} ${esc(cov.why || "")}</div>` : ""}<div class="small muted" style="margin-top:4px">${esc(p.section_label)} · ${p.skills.map(s => `<span class="skbadge">${esc(s)}</span>`).join("")}</div>
+      ${p.figure ? `<div class="qfig"><img alt="graph" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(p.figure)}"></div>` : ""}<div class="qtext"><b>Question:</b> ${esc(p.question)}</div><div class="key">Answer key: ${esc(p.key || "—")}</div>
+      ${pages}
+      ${followLine(p) ? `<div class="followbox"><b>Follow-up:</b> ${followLine(p)}</div>` : ""}
+      ${p.ruling ? `<p class="small"><b>Lindsay's ruling:</b> ${esc(p.ruling)}</p>` : ""}
+      ${p.disputed ? `<p class="warn small">He asked for another look at this one.</p>` : ""}`;
+  }
+  for (const img of body.querySelectorAll("img[data-src]")){
+    try { img.src = await inkSrc(img.dataset.src); } catch(e){ img.replaceWith(Object.assign(document.createElement("p"), {className:"warn small", textContent:"This image could not be loaded."})); }
+    img.addEventListener("click", () => { const lb = document.createElement("div"); lb.className = "lightbox"; lb.innerHTML = `<img src="${img.src}" alt="">`; lb.onclick = () => lb.remove(); document.body.appendChild(lb); });
+  }
+}
+function goTo(id){
+  FSRC = "all"; FRES = "all"; $("#fskill").value = ""; SHOWN = Math.max(SHOWN, (D.everything || []).findIndex(x => x.id === id) + 1);
+  document.querySelectorAll(".chip[data-src],.chip[data-res]").forEach(c => c.setAttribute("aria-pressed", (c.dataset.src || c.dataset.res) === "all"));
+  drawProblems();
+  const d = document.getElementById("u-" + id); if (!d) return;
+  d.open = true; fillProblem(d); d.scrollIntoView({behavior:"smooth", block:"start"});
+  d.classList.add("flash"); setTimeout(() => d.classList.remove("flash"), 1600);
+}
+
+function learningSection(){
+  const L = D.learning; if (!L || !L.simple) return "";
+  return `<section id="learning"><h2>How he learns <span class="q">How the testing and re-testing is built</span></h2>
+    <p class="lead">The app is built on a few findings from learning research. Each is below in one line, with an example from his own work showing whether it is happening yet.</p>
+    ${L.simple.map((P, i) => `<div class="card principle"><div class="phead"><span class="pnum">${i + 1}</span><h3>${esc(P.title)}</h3><span class="pill p-${esc(P.status)}">${esc(P.status_word)}</span></div>
+      <p class="idea">${esc(P.idea)}</p>${P.example ? `<div class="ex small"><b>In his work:</b> ${esc(P.example)}</div>` : ""}</div>`).join("")}
+    <details class="card"><summary><b>What the app does not do yet</b></summary><ul class="gaps">${L.gaps.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      <p class="small muted">From the app's code, ${esc(fmtDate(L.gaps_as_of))}. Research behind it: Roediger & Karpicke 2006 (recall); Cepeda et al. 2006 (spacing); Rohrer & Taylor 2007 and Rohrer, Dedrick & Stershic 2015 (mixing, in 7th-grade maths); Rawson, Dunlosky & Sciartelli 2013 (misses coming back).</p></details>
+  </section>`;
+}
+
+function render(){
+  const g = D.glance, A = g.all;
+  document.title = D.title;
+  const tk = D.takeaways.filter(t => t.kind === "todo").map(t => `<div class="take t-${t.kind}"><span class="tag">To do</span><div>${esc(t.text)}<span class="ev">${esc(t.ev)}</span></div></div>`).join("");
+  const days = D.days;
+  const sitRows = D.sittings.map(s => `<tr><td>${esc(fmtDate(s.date))}<div class="muted small">${esc(s.start)}–${esc(s.end || "?")}</div></td><td>${esc(s.kind)}${s.lessons.length ? `<div class="small muted">${s.lessons.map(l => "Lesson: " + esc(l.title)).join("<br>")}</div>` : ""}</td><td class="n">${s.minutes == null ? "—" : Math.round(s.minutes)}</td><td class="n">${s.problems}${s.planned ? ` <span class="muted">/ ${s.planned}</span>` : ""}</td><td class="n">${s.points}</td><td>${s.finished ? "Finished" : "Left early"}</td><td style="min-width:110px">${s.problems + s.lesson_questions ? bar3(s, s.problems + s.lesson_questions - s.right - s.nowork - s.fixed - s.notyet) : ""}</td></tr>`).join("");
+  const pr = D.points_rules || {};
+  $("#app").innerHTML = `<div class="wrap">
+  <header class="top"><h1>${esc(D.title)}</h1>
+    <div class="sub">Updated ${esc(D.built_at)}. ${g.last ? `Last app practice: ${esc(fmtDate(g.last.date))} at ${esc(g.last.time)}.` : "No app practice yet."}</div></header>
+  <nav class="tabs"><a href="#top">Summary</a><a href="#gaps">Where he needs help</a><a href="#mistakes">Mistakes</a><a href="#progress">Improving?</a><a href="#problems">Every problem</a><a href="#learning">How he learns</a><a href="#asks">Questions he asked</a><a href="#time">Time &amp; points</a><a href="#how">How to read this</a></nav>
+  <section id="top">${keySection()}${glanceSection()}${jarSection()}${tk ? `<div style="margin-top:12px">${tk}</div>` : ""}</section>
+  ${gapsSection()}
+  ${mistakesSection()}
+  ${progressSection()}
+  ${allSection()}
+  ${learningSection()}
+  ${asksSection()}
+  <section id="time"><h2>Time &amp; points <span class="q">How much is he doing in the app?</span></h2>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div class="card"><b>Minutes by day</b>${barChart(days, {value: d => d.minutes, label: d => fmtDate(d.date).replace(/^\w+,? /, ""), unit:" min"})}</div>
+      <div class="card"><b>Problems by day</b>${barChart(days, {label: d => fmtDate(d.date).replace(/^\w+,? /, ""), stack:[{key:"right", color:"--right", name:"right first time"},{key:"nowork", color:"--nowork", name:"right, working added"},{key:"fixed", color:"--fixed", name:"after a fix"},{key:"notyet", color:"--notyet", name:"not yet"}]})}${LEGEND}</div>
+    </div>
+    <h3>Every sitting</h3>
+    <div class="card tablebox"><table><tr><th>When</th><th>What</th><th class="n">Min</th><th class="n">Problems</th><th class="n">Points</th><th>Done?</th><th>Answers</th></tr>${sitRows || '<tr><td colspan="7" class="empty">No sittings yet.</td></tr>'}</table></div>
+    <p class="small">Firewood (points): <b>${A.points}</b>, earned for taking part (${pr.submit || 3} a page, ${pr.fix || 3} a fix, ${pr.show_work || 2} for working, ${pr.sitting_done || 10} for finishing a sitting). It never goes down and does not measure right answers. Stars: ${D.stars.length}.</p>
+  </section>
+  <section id="how"><h2>How to read this</h2>
+    <div class="explain"><dl>
+      <dt>Where the work comes from</dt><dd><b>App</b>: his pages in the practice app, checked by an AI checker that reads his handwriting (it can misread; Lindsay's rulings correct it). <b>Class</b>: his class pages and exit tickets. Exit tickets are marked by his teacher; the rest are read from photos by this project, provisional until someone checks the paper. <b>Math Academy</b>: its own verdicts; it does not show what he typed.</dd>
+      <dt>Right first time / wrong, then fixed</dt><dd>In the app a wrong answer gets a hint and one more try. “Wrong, then fixed” means the first answer was wrong and a later one right. “Working added when asked” is a right answer that needed its working shown; it is not a mistake.</dd>
+      <dt>Skills</dt><dd>Every problem is filed under the main skill it practises. Class and Math Academy problems were matched to skills by this project from their wording.</dd>
+      <dt>Evidence, not mastery</dt><dd>Right a week or more later is the first sign something has stuck.</dd>
+      <dt>7A only · Advanced</dt><dd>A topic in 7A that his own class does not cover. Keinan never sees these labels.</dd>
+    </dl></div>
+  </section>
+  <footer>Built by the practice app's Mac service from his app pages and work/attempts.csv.</footer>
+  </div>`;
+  wire();
+  drawProblems();
+}
+function wire(){
+  document.addEventListener("click", e => {
+    const a = e.target.closest("[data-go]"); if (a){ e.preventDefault(); goTo(a.dataset.go); return; }
+    const s = e.target.closest(".chip[data-src]"); if (s){ FSRC = s.dataset.src; SHOWN = 60; document.querySelectorAll(".chip[data-src]").forEach(c => c.setAttribute("aria-pressed", c === s)); drawProblems(); return; }
+    const r = e.target.closest(".chip[data-res]"); if (r){ FRES = r.dataset.res; SHOWN = 60; document.querySelectorAll(".chip[data-res]").forEach(c => c.setAttribute("aria-pressed", c === r)); drawProblems(); return; }
+  });
+  $("#fskill").addEventListener("change", () => { SHOWN = 60; drawProblems(); });
+}
+
+(async function start(){
+  if (!CONFIG.locked){ D = window.DASH; $("#app").hidden = false; if (D) render(); else $("#app").textContent = "No data file next to this page."; return; }
+  try { const r = await fetch("lock.json", {cache:"no-store"}); if (r.ok) CONFIG = Object.assign({}, CONFIG, await r.json()); } catch(e) {}
+  if (!window.crypto || !crypto.subtle){ $("#lock").hidden = false; $("#lockmsg").textContent = "This browser cannot open the page (it needs https)."; return; }
+  if (await unlockSaved()){ $("#app").hidden = false; render(); return; }
+  $("#lock").hidden = false;
+  $("#lockform").addEventListener("submit", async e => {
+    e.preventDefault(); $("#lockmsg").textContent = "Opening…";
+    try { await unlock($("#pw").value.trim(), $("#remember").checked); $("#lock").hidden = true; $("#app").hidden = false; render(); }
+    catch(err){ KEYS = null; $("#lockmsg").textContent = "That password did not open it."; }
+  });
+})();
+</script>
+</body>
+</html>
